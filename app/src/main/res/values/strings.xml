@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FootballDB</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_item_list">Items</string>
+    <string name="title_item_detail">Item Detail</string>
+    <string name="title_club_list">Clubs</string>
+    <string name="title_club_detail">Club Detail</string>
+</resources>
