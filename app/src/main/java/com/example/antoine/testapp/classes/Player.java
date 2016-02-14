@@ -1,4 +1,4 @@
-package com.example.antoine.testapp;
+package com.example.antoine.testapp.classes;
 
 /**
  * Created by guillaumebrosse on 14/02/16.

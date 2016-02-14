@@ -1,4 +1,4 @@
-package com.example.antoine.testapp;
+package com.example.antoine.testapp.classes;
 
 import java.sql.Date;
 

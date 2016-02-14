@@ -21,8 +21,11 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.example.antoine.testapp.dummy.Club;
-import com.example.antoine.testapp.dummy.LeagueClubs;
+import com.example.antoine.testapp.classes.Fixture;
+import com.example.antoine.testapp.classes.Player;
+import com.example.antoine.testapp.database.DBHelper;
+import com.example.antoine.testapp.database.FixturesDB;
+import com.example.antoine.testapp.database.PlayersDB;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -101,13 +104,11 @@ public class ClubDetailActivity extends AppCompatActivity {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         // Create a new map of values, where column names are the keys
         if(ServiceNetwork.isInternetAvailable(getApplicationContext())){
-            Log.d("TEST", "INTERNET");
             db.delete(PlayersDB.PlayerEntry.TABLE_NAME, PlayersDB.PlayerEntry.COLUMN_NAME_CLUB_ID + "=" + idClub, null);
             db.delete(FixturesDB.FixtureEntry.TABLE_NAME, FixturesDB.FixtureEntry.COLUMN_NAME_CLUB_ID + "=" + idClub, null);
             makeJsonObjectRequestForPlayers();
             makeJsonObjectRequestForFixtures();
         } else {
-            Log.d("TEST", "PAS INTERNET");
             displayDataFromDatabase(idClub);
         }
     }
@@ -162,7 +163,7 @@ public class ClubDetailActivity extends AppCompatActivity {
                     parsedDate = sdf.parse(dateMatch);
                     sqlDate = new java.sql.Date(parsedDate.getTime());
                 }catch (Exception e){
-                    Log.d("MAUVAis", "parsing");
+                   // Log.d("MAUVAis", "parsing");
                 }
 
                 Fixture f = new Fixture(cursorFix.getString(cursorFix.getColumnIndex("idClub")), cursorFix.getString(cursorFix.getColumnIndex("homeTeam")),
@@ -170,7 +171,7 @@ public class ClubDetailActivity extends AppCompatActivity {
                         cursorFix.getString(cursorFix.getColumnIndex("goalsAwayTeam")), sqlDate);
                 listOfFixture.add(f);
             } while (cursorFix.moveToNext());
-            Log.d("fixture test sans bdd", listOfFixture.get(0).getHomeTeam());
+            //Log.d("fixture test sans bdd", listOfFixture.get(0).getHomeTeam());
         }
         cursorFix.close();
     }
@@ -230,7 +231,7 @@ public class ClubDetailActivity extends AppCompatActivity {
                             "Error: " + e.getMessage(),
                             Toast.LENGTH_LONG).show();*/
                 } finally {
-                    Log.d("INSERTIONOK", "OK");
+                    //Log.d("INSERTIONOK", "OK");
                     db.close();
                 }
                 hidepDialog();
@@ -297,7 +298,7 @@ public class ClubDetailActivity extends AppCompatActivity {
                             parsedDate = sdf.parse(dateMatch);
                             sqlDate = new java.sql.Date(parsedDate.getTime());
                         }catch (Exception e){
-                            Log.d("MAUVAis", "parsing");
+                            //Log.d("MAUVAis", "parsing");
                         }
 
                         String stringDate = ""+sqlDate;
@@ -340,7 +341,7 @@ public class ClubDetailActivity extends AppCompatActivity {
 
 
                     }
-                    Log.d("fixture test avec bdd", listOfFixture.get(0).getHomeTeam());
+                   // Log.d("fixture test avec bdd", listOfFixture.get(0).getHomeTeam());
 
                 } catch (JSONException e) {
                     e.printStackTrace();

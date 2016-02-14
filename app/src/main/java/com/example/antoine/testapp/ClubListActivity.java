@@ -12,7 +12,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,11 +24,11 @@ import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.example.antoine.testapp.database.ClubDB;
+import com.example.antoine.testapp.database.DBHelper;
 import com.example.antoine.testapp.dummy.Club;
 import com.example.antoine.testapp.dummy.LeagueClubs;
 
@@ -124,11 +123,11 @@ public class ClubListActivity extends AppCompatActivity {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         // Create a new map of values, where column names are the keys
         if(ServiceNetwork.isInternetAvailable(getApplicationContext())){
-            Log.d("TEST", "INTERNET");
+            //Log.d("TEST", "INTERNET");
             db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
             makeJsonObjectRequest();
         } else {
-            Log.d("TEST", "PAS INTERNET");
+            //Log.d("TEST", "PAS INTERNET");
             displayDataFromDatabase(leagueId);
             setupRecyclerView((RecyclerView) recyclerView);
         }

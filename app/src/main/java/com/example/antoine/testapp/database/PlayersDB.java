@@ -1,4 +1,4 @@
-package com.example.antoine.testapp;
+package com.example.antoine.testapp.database;
 
 import android.provider.BaseColumns;
 
