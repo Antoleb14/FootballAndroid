@@ -3,11 +3,11 @@ package com.example.antoine.testapp;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +16,7 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -26,6 +27,10 @@ import com.example.antoine.testapp.dummy.LeagueClubs;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An activity representing a single Club detail screen. This
@@ -88,13 +93,13 @@ public class ClubDetailActivity extends AppCompatActivity {
         pDialog.setMessage("Chargement des informations...");
         pDialog.setCancelable(false);
 
-        ClubDBHelper mDbHelper = new ClubDBHelper(getApplicationContext());
+        DBHelper mDbHelper = new DBHelper(getApplicationContext());
         // Gets the data repository in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         // Create a new map of values, where column names are the keys
         if(ServiceNetwork.isInternetAvailable(getApplicationContext())){
             Log.d("TEST", "INTERNET");
-           // db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
+            db.delete(PlayersDB.PlayerEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_CLUB_ID + "=" + idClub, null);
             makeJsonObjectRequestForPlayers();
             makeJsonObjectRequestForFixtures();
         } else {
@@ -120,8 +125,24 @@ public class ClubDetailActivity extends AppCompatActivity {
     }
 
 
-    private void displayDataFromDatabase(String idClub){
+    public void displayDataFromDatabase(String idClub) {
 
+        DBHelper mDbHelper = new DBHelper(getApplicationContext());
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String[] args = new String[]{idClub};
+        Cursor cursor = db.rawQuery("SELECT * FROM players WHERE idClub=?", args);
+        ArrayList<Player> listOfPlayer = new ArrayList<Player>();
+        if (cursor.moveToFirst()) {
+            do {
+                Player p = new Player(cursor.getString(cursor.getColumnIndex("idClub")), cursor.getString(cursor.getColumnIndex("name")),
+                        cursor.getString(cursor.getColumnIndex("position")), cursor.getString(cursor.getColumnIndex("number")),
+                        cursor.getString(cursor.getColumnIndex("birth")));
+                listOfPlayer.add(p);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
     }
 
     /**
@@ -135,7 +156,10 @@ public class ClubDetailActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(JSONObject response) {
-                //Log.d(TAG, response.toString());
+                DBHelper mDbHelper = new DBHelper(getApplicationContext());
+                // Gets the data repository in write mode
+                SQLiteDatabase db = mDbHelper.getWritableDatabase();
+                // Create a new map of values, where column names are the keys
 
                 try {
                     // Parsing json object response
@@ -144,17 +168,29 @@ public class ClubDetailActivity extends AppCompatActivity {
                     //Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
                     JSONArray array = response.getJSONArray("players");
 
-                    ClubDBHelper mDbHelper = new ClubDBHelper(getApplicationContext());
-                    // Gets the data repository in write mode
-                    SQLiteDatabase db = mDbHelper.getWritableDatabase();
-                    // Create a new map of values, where column names are the keys
 
 
-
+                    ArrayList<Player> listOfPlayer = new ArrayList<Player>();
                     for(int i = 0; i < array.length(); i++){
+                        ContentValues values = new ContentValues();
+                        values.put(PlayersDB.PlayerEntry.COLUMN_NAME_CLUB_ID, idClub);
+                        values.put(PlayersDB.PlayerEntry.COLUMN_NAME_NAME, array.getJSONObject(i).getString("name"));
+                        values.put(PlayersDB.PlayerEntry.COLUMN_NAME_POSITION, array.getJSONObject(i).getString("position"));
+                        values.put(PlayersDB.PlayerEntry.COLUMN_NAME_NUMBER, array.getJSONObject(i).getString("jerseyNumber"));
+                        values.put(PlayersDB.PlayerEntry.COLUMN_NAME_BIRTH, array.getJSONObject(i).getString("dateOfBirth"));
+                        // Insert the new row, returning the primary key value of the new row
+                        long newRowId;
 
-                      Log.d("Joueur", array.getJSONObject(i).getString("name"));
+                        newRowId = db.insert(
+                                PlayersDB.PlayerEntry.TABLE_NAME,
+                                null,
+                                values);
 
+
+                        Player p = new Player(idClub, array.getJSONObject(i).getString("name"),
+                            array.getJSONObject(i).getString("position"), array.getJSONObject(i).getString("jerseyNumber"),
+                                array.getJSONObject(i).getString("dateOfBirth"));
+                        listOfPlayer.add(p);
 
                     }
 
@@ -163,6 +199,9 @@ public class ClubDetailActivity extends AppCompatActivity {
                     /*Toast.makeText(getApplicationContext(),
                             "Error: " + e.getMessage(),
                             Toast.LENGTH_LONG).show();*/
+                } finally {
+                    Log.d("INSERTIONOK", "OK");
+                    db.close();
                 }
                 hidepDialog();
             }
@@ -176,7 +215,14 @@ public class ClubDetailActivity extends AppCompatActivity {
                 // hide the progress dialog
                 hidepDialog();
             }
-        });
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("X-Auth-Token", "9e18efd7cace4eaca5c7ff0542be1888");
+                return params;
+            }
+        };
 
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(jsonObjReq);
@@ -195,18 +241,18 @@ public class ClubDetailActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 //Log.d(TAG, response.toString());
 
+                DBHelper mDbHelper = new DBHelper(getApplicationContext());
+                // Gets the data repository in write mode
+                SQLiteDatabase db = mDbHelper.getWritableDatabase();
+                // Create a new map of values, where column names are the keys
+
+
                 try {
                     // Parsing json object response
                     // response will be a json object
 
                     //Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
                     JSONArray array = response.getJSONArray("players");
-
-                    ClubDBHelper mDbHelper = new ClubDBHelper(getApplicationContext());
-                    // Gets the data repository in write mode
-                    SQLiteDatabase db = mDbHelper.getWritableDatabase();
-                    // Create a new map of values, where column names are the keys
-
 
 
                     for(int i = 0; i < array.length(); i++){
@@ -221,6 +267,8 @@ public class ClubDetailActivity extends AppCompatActivity {
                     /*Toast.makeText(getApplicationContext(),
                             "Error: " + e.getMessage(),
                             Toast.LENGTH_LONG).show();*/
+                }finally {
+                    db.close();
                 }
                 hidepDialog();
             }
@@ -234,7 +282,14 @@ public class ClubDetailActivity extends AppCompatActivity {
                 // hide the progress dialog
                 hidepDialog();
             }
-        });
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("X-Auth-Token", "9e18efd7cace4eaca5c7ff0542be1888");
+                return params;
+            }
+        };
 
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(jsonObjReq);

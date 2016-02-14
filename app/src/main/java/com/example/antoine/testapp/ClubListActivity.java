@@ -10,11 +10,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,19 +23,23 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.antoine.testapp.dummy.Club;
-import com.example.antoine.testapp.dummy.DummyContent;
 import com.example.antoine.testapp.dummy.LeagueClubs;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An activity representing a list of Clubs. This activity
@@ -117,7 +119,7 @@ public class ClubListActivity extends AppCompatActivity {
         pDialog.setMessage("Chargement des équipes...");
         pDialog.setCancelable(false);
 
-        ClubDBHelper mDbHelper = new ClubDBHelper(getApplicationContext());
+        DBHelper mDbHelper = new DBHelper(getApplicationContext());
         // Gets the data repository in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         // Create a new map of values, where column names are the keys
@@ -141,7 +143,7 @@ public class ClubListActivity extends AppCompatActivity {
     public void displayDataFromDatabase(String leagueId){
         LeagueClubs.clear();
 
-        ClubDBHelper mDbHelper = new ClubDBHelper(getApplicationContext());
+        DBHelper mDbHelper = new DBHelper(getApplicationContext());
         // Gets the data repository in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -262,12 +264,18 @@ public class ClubListActivity extends AppCompatActivity {
         showpDialog();
 
         LeagueClubs.clear();
+
+
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
                 "http://api.football-data.org/v1/soccerseasons/"+ leagueId + "/teams", null, new Response.Listener<JSONObject>() {
 
             @Override
             public void onResponse(JSONObject response) {
                 //Log.d(TAG, response.toString());
+                DBHelper mDbHelper = new DBHelper(getApplicationContext());
+                // Gets the data repository in write mode
+                SQLiteDatabase db = mDbHelper.getWritableDatabase();
+                // Create a new map of values, where column names are the keys
 
                 try {
                     // Parsing json object response
@@ -276,10 +284,7 @@ public class ClubListActivity extends AppCompatActivity {
                     //Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
                     JSONArray array = response.getJSONArray("teams");
 
-                    ClubDBHelper mDbHelper = new ClubDBHelper(getApplicationContext());
-                    // Gets the data repository in write mode
-                    SQLiteDatabase db = mDbHelper.getWritableDatabase();
-                    // Create a new map of values, where column names are the keys
+
 
                     db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
 
@@ -325,6 +330,8 @@ public class ClubListActivity extends AppCompatActivity {
                     /*Toast.makeText(getApplicationContext(),
                             "Error: " + e.getMessage(),
                             Toast.LENGTH_LONG).show();*/
+                } finally {
+                    db.close();
                 }
                 hidepDialog();
             }
@@ -338,7 +345,14 @@ public class ClubListActivity extends AppCompatActivity {
                 // hide the progress dialog
                 hidepDialog();
             }
-        });
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("X-Auth-Token", "9e18efd7cace4eaca5c7ff0542be1888");
+                return params;
+            }
+        };
 
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(jsonObjReq);
