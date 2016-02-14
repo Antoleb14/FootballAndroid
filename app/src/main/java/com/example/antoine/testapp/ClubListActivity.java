@@ -1,9 +1,12 @@
 package com.example.antoine.testapp;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -111,17 +114,55 @@ public class ClubListActivity extends AppCompatActivity {
         }
 
         pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Loading data...");
+        pDialog.setMessage("Chargement des équipes...");
         pDialog.setCancelable(false);
-        if(LeagueClubs.isEmpty())
+
+        ClubDBHelper mDbHelper = new ClubDBHelper(getApplicationContext());
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        // Create a new map of values, where column names are the keys
+        if(ServiceNetwork.isInternetAvailable(getApplicationContext())){
+            Log.d("TEST", "INTERNET");
+            db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
+            makeJsonObjectRequest();
+        } else {
+            Log.d("TEST", "PAS INTERNET");
+            displayDataFromDatabase(leagueId);
+            setupRecyclerView((RecyclerView) recyclerView);
+        }
+
+
+        /*if(LeagueClubs.isEmpty())
             makeJsonObjectRequest();
         else
-            setupRecyclerView((RecyclerView) recyclerView);
+            setupRecyclerView((RecyclerView) recyclerView);*/
+    }
+
+    public void displayDataFromDatabase(String leagueId){
+        LeagueClubs.clear();
+
+        ClubDBHelper mDbHelper = new ClubDBHelper(getApplicationContext());
+        // Gets the data repository in write mode
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        String[] args = new String[] { leagueId };
+        Cursor cursor = db.rawQuery("SELECT * FROM league WHERE idLeague=?", args);
+        if (cursor.moveToFirst()){
+            int i=0;
+            do{
+                String nameClub = cursor.getString(cursor.getColumnIndex("name"));
+                String idClub = cursor.getString(cursor.getColumnIndex("idClub"));
+                LeagueClubs.addItem(new Club((i + 1) + "", nameClub, "Club : "+nameClub, idClub));
+                i++;
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
         if (id == android.R.id.home) {
             // This ID represents the Home or Up button. In the case of this
             // activity, the Up button is shown. Use NavUtils to allow users
@@ -157,7 +198,7 @@ public class ClubListActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
             holder.mItem = mValues.get(position);
             holder.mIdView.setText(mValues.get(position).id);
             holder.mContentView.setText(mValues.get(position).nom);
@@ -165,9 +206,11 @@ public class ClubListActivity extends AppCompatActivity {
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d("LID",mValues.get(position).idApi);
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
                         arguments.putString(ClubDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                        arguments.putString("idClub", holder.mItem.idApi);
                         ClubDetailFragment fragment = new ClubDetailFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
@@ -177,6 +220,7 @@ public class ClubListActivity extends AppCompatActivity {
                         Context context = v.getContext();
                         Intent intent = new Intent(context, ClubDetailActivity.class);
                         intent.putExtra(ClubDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                        intent.putExtra("idClub", holder.mItem.idApi);
 
                         context.startActivity(intent);
                     }
@@ -232,14 +276,42 @@ public class ClubListActivity extends AppCompatActivity {
                     //Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
                     JSONArray array = response.getJSONArray("teams");
 
+                    ClubDBHelper mDbHelper = new ClubDBHelper(getApplicationContext());
+                    // Gets the data repository in write mode
+                    SQLiteDatabase db = mDbHelper.getWritableDatabase();
+                    // Create a new map of values, where column names are the keys
+
+                    db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
+
+
+
+
                     for(int i = 0; i < array.length(); i++){
+
+                        ContentValues values = new ContentValues();
+                        values.put(ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID, leagueId);
+                        values.put(ClubDB.ClubEntry.COLUMN_NAME_TEAM_NAME, array.getJSONObject(i).getString("name"));
+                        values.put(ClubDB.ClubEntry.COLUMN_NAME_ICON_LINK, array.getJSONObject(i).getString("crestUrl"));
+                        values.put(ClubDB.ClubEntry.COLUMN_NAME_MARKET_VALUE, array.getJSONObject(i).getString("squadMarketValue"));
+                        //values.put(ClubDB.ClubEntry.COLUMN_NAME_CLUB_FIXTURES, array.getJSONObject(i).getJSONObject("_links").getJSONObject("fixtures").getString("href"));
+                        //values.put(ClubDB.ClubEntry.COLUMN_NAME_CLUB_PLAYERS, array.getJSONObject(i).getJSONObject("_links").getJSONObject("players").getString("href"));
+                        String idClub = array.getJSONObject(i).getJSONObject("_links").getJSONObject("self").getString("href").replace("http://api.football-data.org/v1/teams/","");
+                        values.put(ClubDB.ClubEntry.COLUMN_NAME_CLUB_ID, idClub);
+
+                        // Insert the new row, returning the primary key value of the new row
+                        long newRowId;
+
+                        newRowId = db.insert(
+                                    ClubDB.ClubEntry.TABLE_NAME,
+                                    null,
+                                    values);
+
+
                         //Log.d("DEBUG", array.getJSONObject(i).getString("name"));
                         String name = array.getJSONObject(i).getString("name");
-                        LeagueClubs.addItem(new Club((i + 1) + "", name, "Club : "+name));
+                        LeagueClubs.addItem(new Club((i + 1) + "", name, "Club : "+name, idClub));
                         //Toast.makeText(getApplicationContext(), array.getJSONObject(i).getString("name"), Toast.LENGTH_SHORT).show();
                     }
-
-
 
                     jsonResponse = "";
                     /*jsonResponse += "Email: " + email + "\n\n";

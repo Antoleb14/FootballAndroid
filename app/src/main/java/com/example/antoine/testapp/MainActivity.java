@@ -1,7 +1,9 @@
 package com.example.antoine.testapp;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         pDialog.setMessage("Please wait...");
         pDialog.setCancelable(false);
         makeJsonObjectRequest();*/
+
 
         final ImageButton ligue1 = (ImageButton) findViewById(R.id.ligue1);
         ligue1.setOnClickListener(new View.OnClickListener() {
