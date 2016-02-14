@@ -17,13 +17,9 @@ public final class ClubDB {
                     ClubEntry._ID + " INTEGER PRIMARY KEY," +
                     ClubEntry.COLUMN_NAME_LEAGUE_ID + TEXT_TYPE + COMMA_SEP +
                     ClubEntry.COLUMN_NAME_CLUB_ID + TEXT_TYPE + COMMA_SEP +
-                    ClubEntry.COLUMN_NAME_CLUB_FIXTURES + TEXT_TYPE + COMMA_SEP +
-                    ClubEntry.COLUMN_NAME_CLUB_PLAYERS + TEXT_TYPE + COMMA_SEP +
                     ClubEntry.COLUMN_NAME_TEAM_NAME + TEXT_TYPE + COMMA_SEP +
                     ClubEntry.COLUMN_NAME_ICON_LINK + TEXT_TYPE + COMMA_SEP +
-                    ClubEntry.COLUMN_NAME_RANK + TEXT_TYPE + COMMA_SEP +
-                    ClubEntry.COLUMN_NAME_MARKET_VALUE + TEXT_TYPE + COMMA_SEP +
-                    ClubEntry.COLUMN_NAME_LAST_MATCH + TEXT_TYPE +
+                    ClubEntry.COLUMN_NAME_MARKET_VALUE + TEXT_TYPE +
                     " )";
 
     public static final String SQL_DELETE_ENTRIES =
@@ -34,13 +30,9 @@ public final class ClubDB {
         public static final String TABLE_NAME = "league";
         public static final String COLUMN_NAME_LEAGUE_ID = "idLeague";
         public static final String COLUMN_NAME_CLUB_ID = "idClub";
-        public static final String COLUMN_NAME_CLUB_FIXTURES = "fixturesClub";
-        public static final String COLUMN_NAME_CLUB_PLAYERS = "playersClub";
         public static final String COLUMN_NAME_TEAM_NAME = "name";
         public static final String COLUMN_NAME_ICON_LINK = "iconLink";
-        public static final String COLUMN_NAME_RANK = "rank";
         public static final String COLUMN_NAME_MARKET_VALUE = "marketValue";
-        public static final String COLUMN_NAME_LAST_MATCH = "lastMatch";
     }
 }
 

@@ -278,18 +278,8 @@ public class ClubListActivity extends AppCompatActivity {
                 // Create a new map of values, where column names are the keys
 
                 try {
-                    // Parsing json object response
-                    // response will be a json object
-
-                    //Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
                     JSONArray array = response.getJSONArray("teams");
-
-
-
                     db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
-
-
-
 
                     for(int i = 0; i < array.length(); i++){
 
@@ -310,21 +300,10 @@ public class ClubListActivity extends AppCompatActivity {
                                     ClubDB.ClubEntry.TABLE_NAME,
                                     null,
                                     values);
-
-
-                        //Log.d("DEBUG", array.getJSONObject(i).getString("name"));
                         String name = array.getJSONObject(i).getString("name");
                         LeagueClubs.addItem(new Club((i + 1) + "", name, "Club : "+name, idClub));
                         //Toast.makeText(getApplicationContext(), array.getJSONObject(i).getString("name"), Toast.LENGTH_SHORT).show();
                     }
-
-                    jsonResponse = "";
-                    /*jsonResponse += "Email: " + email + "\n\n";
-                    jsonResponse += "Home: " + home + "\n\n";
-                    jsonResponse += "Mobile: " + mobile + "\n\n";*/
-
-                    //txtResponse.setText(jsonResponse);
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                     /*Toast.makeText(getApplicationContext(),
@@ -353,8 +332,6 @@ public class ClubListActivity extends AppCompatActivity {
                 return params;
             }
         };
-
-        // Adding request to request queue
         AppController.getInstance().addToRequestQueue(jsonObjReq);
     }
 

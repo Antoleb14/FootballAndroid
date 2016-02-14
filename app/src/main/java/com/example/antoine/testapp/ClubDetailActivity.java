@@ -28,8 +28,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -143,6 +146,32 @@ public class ClubDetailActivity extends AppCompatActivity {
             } while (cursor.moveToNext());
         }
         cursor.close();
+
+        Cursor cursorFix = db.rawQuery("SELECT * FROM fixtures WHERE idClub=? order by date desc", args);
+        ArrayList<Fixture> listOfFixture = new ArrayList<Fixture>();
+        if (cursorFix.moveToFirst()) {
+            do {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd",
+                        Locale.FRANCE);
+                String dateMatch = cursorFix.getString(cursorFix.getColumnIndex("date"));
+
+                Date parsedDate= new Date();
+                java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
+                try{
+                    parsedDate = sdf.parse(dateMatch);
+                    sqlDate = new java.sql.Date(parsedDate.getTime());
+                }catch (Exception e){
+                    Log.d("MAUVAis", "parsing");
+                }
+
+                Fixture f = new Fixture(cursorFix.getString(cursorFix.getColumnIndex("idClub")), cursorFix.getString(cursorFix.getColumnIndex("homeTeam")),
+                        cursorFix.getString(cursorFix.getColumnIndex("awayTeam")), cursorFix.getString(cursorFix.getColumnIndex("goalsHomeTeam")),
+                        cursorFix.getString(cursorFix.getColumnIndex("goalsAwayTeam")), sqlDate);
+                listOfFixture.add(f);
+            } while (cursorFix.moveToNext());
+            Log.d("fixture test sans bdd", listOfFixture.get(0).getHomeTeam());
+        }
+        cursorFix.close();
     }
 
     /**
@@ -235,7 +264,7 @@ public class ClubDetailActivity extends AppCompatActivity {
 
         showpDialog();
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
-                "http://api.football-data.org/v1/teams/"+idClub+"/players", null, new Response.Listener<JSONObject>() {
+                "http://api.football-data.org/v1/teams/"+idClub+"/fixtures", null, new Response.Listener<JSONObject>() {
 
             @Override
             public void onResponse(JSONObject response) {
@@ -252,15 +281,65 @@ public class ClubDetailActivity extends AppCompatActivity {
                     // response will be a json object
 
                     //Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_LONG).show();
-                    JSONArray array = response.getJSONArray("players");
+                    JSONArray array = response.getJSONArray("fixtures");
 
-
+                    ArrayList<Fixture> listOfFixture = new ArrayList<Fixture>();
                     for(int i = 0; i < array.length(); i++){
 
-                        Log.d("Joueur", array.getJSONObject(i).getString("name"));
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'",
+                                Locale.FRANCE);
+                        String dateMatch = array.getJSONObject(i).getString("date");
+
+                        Date parsedDate= new Date();
+                        java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
+                        try{
+                            parsedDate = sdf.parse(dateMatch);
+                            sqlDate = new java.sql.Date(parsedDate.getTime());
+                        }catch (Exception e){
+                            Log.d("MAUVAis", "parsing");
+                        }
+
+                        String stringDate = ""+sqlDate;
+
+                        ContentValues values = new ContentValues();
+                        values.put(FixturesDB.FixtureEntry.COLUMN_NAME_CLUB_ID, idClub);
+                        values.put(FixturesDB.FixtureEntry.COLUMN_NAME_HOME_TEAM, array.getJSONObject(i).getString("homeTeamName"));
+                        values.put(FixturesDB.FixtureEntry.COLUMN_NAME_AWAY_TEAM, array.getJSONObject(i).getString("awayTeamName"));
+
+                        String goalsHomeTeam="0";
+                        if (array.getJSONObject(i).getJSONObject("result").optString("goalsHomeTeam")==null) {
+                            goalsHomeTeam="0";
+                        } else {
+                            goalsHomeTeam=array.getJSONObject(i).getJSONObject("result").optString("goalsHomeTeam");
+                        }
+
+                        String goalsAwayTeam="0";
+                        if (array.getJSONObject(i).getJSONObject("result").optString("goalsAwayTeam")==null) {
+                            goalsAwayTeam="0";
+                        } else {
+                            goalsAwayTeam=array.getJSONObject(i).getJSONObject("result").optString("goalsAwayTeam");
+                        }
+
+                        values.put(FixturesDB.FixtureEntry.COLUMN_NAME_GOALS_HOME_TEAM, goalsHomeTeam);
+                        values.put(FixturesDB.FixtureEntry.COLUMN_NAME_GOALS_AWAY_TEAM, goalsAwayTeam);
+                        values.put(FixturesDB.FixtureEntry.COLUMN_NAME_DATE, stringDate);
+                        // Insert the new row, returning the primary key value of the new row
+                        long newRowId;
+
+                        newRowId = db.insert(
+                                FixturesDB.FixtureEntry.TABLE_NAME,
+                                null,
+                                values);
+
+
+                        Fixture f = new Fixture(idClub, array.getJSONObject(i).getString("homeTeamName"),
+                                array.getJSONObject(i).getString("awayTeamName"), goalsHomeTeam,
+                                goalsAwayTeam, sqlDate);
+                        listOfFixture.add(f);
 
 
                     }
+                    Log.d("fixture test avec bdd", listOfFixture.get(0).getHomeTeam());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
