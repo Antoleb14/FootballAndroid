@@ -102,7 +102,8 @@ public class ClubDetailActivity extends AppCompatActivity {
         // Create a new map of values, where column names are the keys
         if(ServiceNetwork.isInternetAvailable(getApplicationContext())){
             Log.d("TEST", "INTERNET");
-            db.delete(PlayersDB.PlayerEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_CLUB_ID + "=" + idClub, null);
+            db.delete(PlayersDB.PlayerEntry.TABLE_NAME, PlayersDB.PlayerEntry.COLUMN_NAME_CLUB_ID + "=" + idClub, null);
+            db.delete(FixturesDB.FixtureEntry.TABLE_NAME, FixturesDB.FixtureEntry.COLUMN_NAME_CLUB_ID + "=" + idClub, null);
             makeJsonObjectRequestForPlayers();
             makeJsonObjectRequestForFixtures();
         } else {
