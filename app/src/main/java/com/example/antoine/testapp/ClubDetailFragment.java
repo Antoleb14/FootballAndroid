@@ -150,6 +150,8 @@ public class ClubDetailFragment extends Fragment {
             } while (cursor.moveToNext());
         }
 
+        db.close();
+
         //Log.d("Player from database","IL y en a"+listOfPlayer.size());
         Toast.makeText(getActivity().getApplicationContext(), listOfPlayer.size() + " joueurs récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
         cursor.close();

@@ -125,7 +125,7 @@ public class ClubListActivity extends AppCompatActivity {
         // Create a new map of values, where column names are the keys
         if(ServiceNetwork.isInternetAvailable(getApplicationContext())){
             //Log.d("TEST", "INTERNET");
-            db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
+            //db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
             makeJsonObjectRequest();
         } else {
             //Log.d("TEST", "PAS INTERNET");
@@ -283,15 +283,41 @@ public class ClubListActivity extends AppCompatActivity {
 
                 try {
                     JSONArray array = response.getJSONArray("teams");
-                    db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
+
                     int nbTeam=0;
                     for(int i = 0; i < array.length(); i++){
+                        String idClub = array.getJSONObject(i).getJSONObject("_links").getJSONObject("self").getString("href").replace("http://api.football-data.org/v1/teams/","");
+
+                        String iconLink="";
+
+                        String[] args = new String[] { idClub };
+                        Cursor cursor = db.rawQuery("SELECT * FROM league WHERE idClub=?", args);
+                        if (cursor.moveToFirst()) {
+                            do {
+                                iconLink = cursor.getString(cursor.getColumnIndex("iconLink"));
+                            } while (cursor.moveToNext());
+                        }
+                        cursor.close();
+
+                        db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_CLUB_ID + "=" + idClub, null);
+
+
                         String extension = array.getJSONObject(i).getString("crestUrl").substring(array.getJSONObject(i).getString("crestUrl").length() - 3);
                         String nameFile=array.getJSONObject(i).getString("name")+"."+extension;
-                        nameFile=nameFile.replace(" ", "_");
-                        //Log.d("NOM FICHIER", nameFile);
-                        File file = new File(getApplicationContext().getFilesDir(),nameFile);
-                        Utils.downloadFile(getApplicationContext(), array.getJSONObject(i).getString("crestUrl"), file);
+
+                        if(iconLink==""){
+                            nameFile=nameFile.replace(" ", "_");
+                            //Log.d("NOM FICHIER", nameFile);
+                            Log.d("FILEDIR", ""+getApplicationContext().getFilesDir());
+                            File file = new File(getApplicationContext().getFilesDir(),nameFile);
+
+                            if(Utils.downloadFile(getApplicationContext(), array.getJSONObject(i).getString("crestUrl"), file)){
+                                Log.e("OK", "ok");
+                            } else {
+                                Log.e("Erreyr", "erreyr");
+                            }
+                        }
+
 
                         ContentValues values = new ContentValues();
                         values.put(ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID, leagueId);
@@ -300,7 +326,6 @@ public class ClubListActivity extends AppCompatActivity {
                         values.put(ClubDB.ClubEntry.COLUMN_NAME_MARKET_VALUE, array.getJSONObject(i).getString("squadMarketValue"));
                         //values.put(ClubDB.ClubEntry.COLUMN_NAME_CLUB_FIXTURES, array.getJSONObject(i).getJSONObject("_links").getJSONObject("fixtures").getString("href"));
                         //values.put(ClubDB.ClubEntry.COLUMN_NAME_CLUB_PLAYERS, array.getJSONObject(i).getJSONObject("_links").getJSONObject("players").getString("href"));
-                        String idClub = array.getJSONObject(i).getJSONObject("_links").getJSONObject("self").getString("href").replace("http://api.football-data.org/v1/teams/","");
                         values.put(ClubDB.ClubEntry.COLUMN_NAME_CLUB_ID, idClub);
 
                         // Insert the new row, returning the primary key value of the new row

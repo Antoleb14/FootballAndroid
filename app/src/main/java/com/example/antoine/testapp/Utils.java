@@ -4,6 +4,8 @@ package com.example.antoine.testapp;
  * Created by Antoine on 16/02/2016.
  */
 import android.content.Context;
+import android.os.StrictMode;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,6 +37,9 @@ public class Utils {
         InputStream is = null;
 
         try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
             URL myUrl = new URL(url);
             URLConnection connection = myUrl.openConnection();
 
@@ -55,7 +60,7 @@ public class Utils {
             ret = true;
         }
         catch(Exception e) {
-            //Log.e(TAG, "Error while downloading and saving file !", e);
+            Log.e("kjbhjgg", "Error while downloading and saving file !", e);
         }
         finally {
             try {
