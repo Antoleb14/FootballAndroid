@@ -156,9 +156,9 @@ public class ClubListActivity extends AppCompatActivity {
                 LeagueClubs.addItem(new Club((i + 1) + "", nameClub, "Club : "+nameClub, idClub));
                 i++;
             }while(cursor.moveToNext());
-            Log.d("Nb Equipe from base","Il y en a"+i);
+            Toast.makeText(getApplicationContext(), i+1+" equipes récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
         } else {
-            Log.d("Nb equipe from base", "ZERO");
+            Toast.makeText(getApplicationContext(), "Liste équipe pour cette league vide en base de données.", Toast.LENGTH_SHORT).show();
         }
 
         cursor.close();
@@ -283,7 +283,7 @@ public class ClubListActivity extends AppCompatActivity {
                 try {
                     JSONArray array = response.getJSONArray("teams");
                     db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
-
+                    int nbTeam=0;
                     for(int i = 0; i < array.length(); i++){
 
                         ContentValues values = new ContentValues();
@@ -304,10 +304,11 @@ public class ClubListActivity extends AppCompatActivity {
                                     null,
                                     values);
                         String name = array.getJSONObject(i).getString("name");
-                        LeagueClubs.addItem(new Club((i + 1) + "", name, "Club : "+name, idClub));
+                        LeagueClubs.addItem(new Club((i + 1) + "", name, "Club : " + name, idClub));
+                        nbTeam++;
                         //Toast.makeText(getApplicationContext(), array.getJSONObject(i).getString("name"), Toast.LENGTH_SHORT).show();
-                        Log.d("Nb Equipe from internet","Il y en a"+i);
                     }
+                    Toast.makeText(getApplicationContext(), nbTeam+" equipes récupérées depuis l'API.", Toast.LENGTH_SHORT).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                     /*Toast.makeText(getApplicationContext(),

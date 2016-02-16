@@ -2,21 +2,30 @@ package com.example.antoine.testapp;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.antoine.testapp.classes.League;
+import com.example.antoine.testapp.database.ClubDB;
+import com.example.antoine.testapp.database.DBHelper;
+import com.example.antoine.testapp.database.FixturesDB;
+import com.example.antoine.testapp.database.PlayersDB;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 
@@ -132,6 +141,16 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            //Log.d(TAG, response.toString());
+            DBHelper mDbHelper = new DBHelper(getApplicationContext());
+            // Gets the data repository in write mode
+            SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            // Create a new map of values, where column names are the keys
+            db.delete(ClubDB.ClubEntry.TABLE_NAME,null, null);
+            db.delete(PlayersDB.PlayerEntry.TABLE_NAME,null, null);
+            db.delete(FixturesDB.FixtureEntry.TABLE_NAME,null, null);
+
+            Toast.makeText(getApplicationContext(), "La base de données est vide.", Toast.LENGTH_SHORT).show();
             return true;
         }
 

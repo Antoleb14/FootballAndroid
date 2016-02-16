@@ -148,7 +148,8 @@ public class ClubDetailActivity extends AppCompatActivity {
             } while (cursor.moveToNext());
         }
 
-        Log.d("Player from database","IL y en a"+listOfPlayer.size());
+        //Log.d("Player from database","IL y en a"+listOfPlayer.size());
+        Toast.makeText(getApplicationContext(), listOfPlayer.size()+" joueurs récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
         cursor.close();
 
         Cursor cursorFix = db.rawQuery("SELECT * FROM fixtures WHERE idClub=? order by date desc", args);
@@ -175,7 +176,8 @@ public class ClubDetailActivity extends AppCompatActivity {
             } while (cursorFix.moveToNext());
             //Log.d("fixture test sans bdd", listOfFixture.get(0).getHomeTeam());
         }
-        Log.d("Fixture form database","-> IL y en a "+listOfFixture.size());
+        Toast.makeText(getApplicationContext(), listOfFixture.size()+" fixtures récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
+        //Log.d("Fixture form database","-> IL y en a "+listOfFixture.size());
         cursorFix.close();
     }
 
@@ -228,7 +230,9 @@ public class ClubDetailActivity extends AppCompatActivity {
 
                     }
 
-                    Log.d("Player from internet","-> il y en a "+listOfPlayer.size());
+                   // Log.d("Player from internet", "-> il y en a " + listOfPlayer.size());
+                    Toast.makeText(getApplicationContext(), listOfPlayer.size()+" joueurs récupérées depuis l'API.", Toast.LENGTH_SHORT).show();
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -346,8 +350,10 @@ public class ClubDetailActivity extends AppCompatActivity {
 
 
                     }
-                    Log.d("Fixture form internet","-> il y en a "+listOfFixture.size());
-                   // Log.d("fixture test avec bdd", listOfFixture.get(0).getHomeTeam());
+                    //Log.d("Fixture form internet","-> il y en a "+listOfFixture.size());
+                    Toast.makeText(getApplicationContext(), listOfFixture.size()+" fixtures récupérées depuis l'API.", Toast.LENGTH_SHORT).show();
+
+                    // Log.d("fixture test avec bdd", listOfFixture.get(0).getHomeTeam());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
