@@ -52,6 +52,8 @@ public class ClubDetailFragment extends Fragment {
     private ProgressDialog pDialog;
     private String idClub;
     private ClubClass club;
+    private ArrayList<Player> listPlayers;
+    private ArrayList<Fixture> listFixtures,
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -158,6 +160,8 @@ public class ClubDetailFragment extends Fragment {
 
         db.close();
 
+        listPlayers=listOfPlayer;
+
         //Log.d("Player from database","IL y en a"+listOfPlayer.size());
         Toast.makeText(getActivity().getApplicationContext(), listOfPlayer.size() + " joueurs récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
         cursor.close();
@@ -189,6 +193,7 @@ public class ClubDetailFragment extends Fragment {
         Toast.makeText(getActivity().getApplicationContext(), listOfFixture.size()+" fixtures récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
         //Log.d("Fixture form database","-> IL y en a "+listOfFixture.size());
         cursorFix.close();
+        listFixtures=listOfFixture;
     }
 
     /**
@@ -239,7 +244,7 @@ public class ClubDetailFragment extends Fragment {
                         listOfPlayer.add(p);
 
                     }
-
+                    listPlayers=listOfPlayer;
                     // Log.d("Player from internet", "-> il y en a " + listOfPlayer.size());
                     Toast.makeText(getActivity().getApplicationContext(), listOfPlayer.size()+" joueurs récupérées depuis l'API.", Toast.LENGTH_SHORT).show();
 
@@ -360,6 +365,7 @@ public class ClubDetailFragment extends Fragment {
 
 
                     }
+                    listFixtures=listOfFixture;
                     //Log.d("Fixture form internet","-> il y en a "+listOfFixture.size());
                     Toast.makeText(getActivity().getApplicationContext(), listOfFixture.size()+" fixtures récupérées depuis l'API.", Toast.LENGTH_SHORT).show();
 
