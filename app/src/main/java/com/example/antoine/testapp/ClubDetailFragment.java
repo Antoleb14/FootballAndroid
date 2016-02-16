@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.antoine.testapp.classes.ClubClass;
 import com.example.antoine.testapp.classes.Fixture;
 import com.example.antoine.testapp.classes.League;
 import com.example.antoine.testapp.classes.Player;
@@ -49,6 +51,7 @@ import java.util.Map;
 public class ClubDetailFragment extends Fragment {
     private ProgressDialog pDialog;
     private String idClub;
+    private ClubClass club;
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -103,11 +106,14 @@ public class ClubDetailFragment extends Fragment {
         }
 
         String[] args = new String[]{idClub};
-        Cursor cursor = db.rawQuery("SELECT iconLink FROM league WHERE idClub=?", args);
+        Cursor cursor = db.rawQuery("SELECT * FROM league WHERE idClub=?", args);
         String extension="";
         if (cursor.moveToFirst()) {
             do {
                 extension = cursor.getString(cursor.getColumnIndex("iconLink")).substring(cursor.getString(cursor.getColumnIndex("iconLink")).length() - 3);
+                club = new ClubClass(cursor.getString(cursor.getColumnIndex("idClub")),cursor.getString(cursor.getColumnIndex("idLeague")),
+                        cursor.getString(cursor.getColumnIndex("name")),cursor.getString(cursor.getColumnIndex("iconLink")),
+                        cursor.getString(cursor.getColumnIndex("marketValue")));
             } while (cursor.moveToNext());
         }
         if(extension==""){
