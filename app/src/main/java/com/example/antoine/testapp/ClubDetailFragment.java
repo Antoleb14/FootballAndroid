@@ -53,7 +53,7 @@ public class ClubDetailFragment extends Fragment {
     private String idClub;
     private ClubClass club;
     private ArrayList<Player> listPlayers;
-    private ArrayList<Fixture> listFixtures,
+    private ArrayList<Fixture> listFixtures;
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
