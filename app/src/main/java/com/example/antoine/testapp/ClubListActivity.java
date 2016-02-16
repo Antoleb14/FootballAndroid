@@ -36,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -285,11 +286,17 @@ public class ClubListActivity extends AppCompatActivity {
                     db.delete(ClubDB.ClubEntry.TABLE_NAME, ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID + "=" + leagueId, null);
                     int nbTeam=0;
                     for(int i = 0; i < array.length(); i++){
+                        String extension = array.getJSONObject(i).getString("crestUrl").substring(array.getJSONObject(i).getString("crestUrl").length() - 3);
+                        String nameFile=array.getJSONObject(i).getString("name")+"."+extension;
+                        nameFile=nameFile.replace(" ", "_");
+                        //Log.d("NOM FICHIER", nameFile);
+                        File file = new File(getApplicationContext().getFilesDir(),nameFile);
+                        Utils.downloadFile(getApplicationContext(), array.getJSONObject(i).getString("crestUrl"), file);
 
                         ContentValues values = new ContentValues();
                         values.put(ClubDB.ClubEntry.COLUMN_NAME_LEAGUE_ID, leagueId);
                         values.put(ClubDB.ClubEntry.COLUMN_NAME_TEAM_NAME, array.getJSONObject(i).getString("name"));
-                        values.put(ClubDB.ClubEntry.COLUMN_NAME_ICON_LINK, array.getJSONObject(i).getString("crestUrl"));
+                        values.put(ClubDB.ClubEntry.COLUMN_NAME_ICON_LINK, nameFile);
                         values.put(ClubDB.ClubEntry.COLUMN_NAME_MARKET_VALUE, array.getJSONObject(i).getString("squadMarketValue"));
                         //values.put(ClubDB.ClubEntry.COLUMN_NAME_CLUB_FIXTURES, array.getJSONObject(i).getJSONObject("_links").getJSONObject("fixtures").getString("href"));
                         //values.put(ClubDB.ClubEntry.COLUMN_NAME_CLUB_PLAYERS, array.getJSONObject(i).getJSONObject("_links").getJSONObject("players").getString("href"));

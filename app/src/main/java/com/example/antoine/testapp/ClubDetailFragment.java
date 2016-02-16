@@ -101,6 +101,22 @@ public class ClubDetailFragment extends Fragment {
         } else {
             displayDataFromDatabase(idClub);
         }
+
+        String[] args = new String[]{idClub};
+        Cursor cursor = db.rawQuery("SELECT iconLink FROM league WHERE idClub=?", args);
+        String extension="";
+        if (cursor.moveToFirst()) {
+            do {
+                extension = cursor.getString(cursor.getColumnIndex("iconLink")).substring(cursor.getString(cursor.getColumnIndex("iconLink")).length() - 3);
+            } while (cursor.moveToNext());
+        }
+        if(extension==""){
+            Toast.makeText(getActivity().getApplicationContext(),"Aucune image.", Toast.LENGTH_SHORT).show();
+        } else if(extension=="svg"){
+            Toast.makeText(getActivity().getApplicationContext(), "SVG", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getActivity().getApplicationContext(), ""+extension, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -110,7 +126,7 @@ public class ClubDetailFragment extends Fragment {
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.club_detail)).setText(mItem.details);
+           // ((TextView) rootView.findViewById(R.id.club_detail)).setText(mItem.details);
         }
 
         return rootView;
