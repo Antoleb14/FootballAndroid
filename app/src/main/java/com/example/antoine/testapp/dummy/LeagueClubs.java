@@ -13,7 +13,6 @@ import java.util.Map;
  */
 public class LeagueClubs {
 
-    public static final int leagueId = 0;
     /**
      * An array of sample (dummy) items.
      */
