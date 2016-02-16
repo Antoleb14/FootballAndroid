@@ -39,7 +39,7 @@ public class Utils {
         try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
-
+            
             URL myUrl = new URL(url);
             URLConnection connection = myUrl.openConnection();
 
