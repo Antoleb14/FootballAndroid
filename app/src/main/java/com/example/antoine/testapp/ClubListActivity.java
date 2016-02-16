@@ -156,7 +156,11 @@ public class ClubListActivity extends AppCompatActivity {
                 LeagueClubs.addItem(new Club((i + 1) + "", nameClub, "Club : "+nameClub, idClub));
                 i++;
             }while(cursor.moveToNext());
+            Log.d("Nb Equipe from base","Il y en a"+i);
+        } else {
+            Log.d("Nb equipe from base", "ZERO");
         }
+
         cursor.close();
     }
 
@@ -302,6 +306,7 @@ public class ClubListActivity extends AppCompatActivity {
                         String name = array.getJSONObject(i).getString("name");
                         LeagueClubs.addItem(new Club((i + 1) + "", name, "Club : "+name, idClub));
                         //Toast.makeText(getApplicationContext(), array.getJSONObject(i).getString("name"), Toast.LENGTH_SHORT).show();
+                        Log.d("Nb Equipe from internet","Il y en a"+i);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

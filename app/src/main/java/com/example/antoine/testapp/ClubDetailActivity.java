@@ -147,6 +147,8 @@ public class ClubDetailActivity extends AppCompatActivity {
                 listOfPlayer.add(p);
             } while (cursor.moveToNext());
         }
+
+        Log.d("Player from database","IL y en a"+listOfPlayer.size());
         cursor.close();
 
         Cursor cursorFix = db.rawQuery("SELECT * FROM fixtures WHERE idClub=? order by date desc", args);
@@ -173,6 +175,7 @@ public class ClubDetailActivity extends AppCompatActivity {
             } while (cursorFix.moveToNext());
             //Log.d("fixture test sans bdd", listOfFixture.get(0).getHomeTeam());
         }
+        Log.d("Fixture form database","-> IL y en a "+listOfFixture.size());
         cursorFix.close();
     }
 
@@ -224,6 +227,8 @@ public class ClubDetailActivity extends AppCompatActivity {
                         listOfPlayer.add(p);
 
                     }
+
+                    Log.d("Player from internet","-> il y en a "+listOfPlayer.size());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -341,6 +346,7 @@ public class ClubDetailActivity extends AppCompatActivity {
 
 
                     }
+                    Log.d("Fixture form internet","-> il y en a "+listOfFixture.size());
                    // Log.d("fixture test avec bdd", listOfFixture.get(0).getHomeTeam());
 
                 } catch (JSONException e) {
