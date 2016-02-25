@@ -86,7 +86,8 @@ public class ClubDetailFragment extends Fragment {
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.nom);
+                //appBarLayout.setTitle(mItem.nom);
+                appBarLayout.setTitle("Aperçu du club");
             }
         }
 
@@ -135,6 +136,8 @@ public class ClubDetailFragment extends Fragment {
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
            // ((TextView) rootView.findViewById(R.id.club_detail)).setText(mItem.details);
+            TextView clubName = (TextView) rootView.findViewById(R.id.textView);
+            clubName.setText(club.getName());
         }
 
         return rootView;
