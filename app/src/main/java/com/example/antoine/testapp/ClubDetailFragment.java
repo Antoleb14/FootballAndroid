@@ -161,8 +161,6 @@ public class ClubDetailFragment extends Fragment {
             } while (cursor.moveToNext());
         }
 
-        db.close();
-
         listPlayers=listOfPlayer;
 
         //Log.d("Player from database","IL y en a"+listOfPlayer.size());
