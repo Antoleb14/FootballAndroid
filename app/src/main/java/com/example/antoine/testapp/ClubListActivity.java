@@ -305,7 +305,7 @@ public class ClubListActivity extends AppCompatActivity {
                         String extension = array.getJSONObject(i).getString("crestUrl").substring(array.getJSONObject(i).getString("crestUrl").length() - 3);
                         String nameFile=array.getJSONObject(i).getString("name")+"."+extension;
 
-                        if(iconLink==""){
+                        /*if(iconLink==""){
                             nameFile=nameFile.replace(" ", "_");
                             //Log.d("NOM FICHIER", nameFile);
                             Log.d("FILEDIR", ""+getApplicationContext().getFilesDir());
@@ -316,7 +316,7 @@ public class ClubListActivity extends AppCompatActivity {
                             } else {
                                 Log.e("Erreyr", "erreyr");
                             }
-                        }
+                        }*/
 
 
                         ContentValues values = new ContentValues();
