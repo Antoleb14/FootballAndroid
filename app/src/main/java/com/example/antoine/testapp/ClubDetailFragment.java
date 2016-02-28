@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -119,13 +121,6 @@ public class ClubDetailFragment extends Fragment {
                         cursor.getString(cursor.getColumnIndex("marketValue")));
             } while (cursor.moveToNext());
         }
-        if(extension==""){
-            Toast.makeText(getActivity().getApplicationContext(),"Aucune image.", Toast.LENGTH_SHORT).show();
-        } else if(extension=="svg"){
-            Toast.makeText(getActivity().getApplicationContext(), "SVG", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getActivity().getApplicationContext(), ""+extension, Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
@@ -138,9 +133,18 @@ public class ClubDetailFragment extends Fragment {
            // ((TextView) rootView.findViewById(R.id.club_detail)).setText(mItem.details);
             TextView clubName = (TextView) rootView.findViewById(R.id.textView);
             clubName.setText(club.getName());
+            TextView marketvalue = ((TextView) rootView.findViewById(R.id.marketvalue));
+            marketvalue.setText(club.getMarketValue()+"");
+
         }
 
         return rootView;
+    }
+
+    @Override
+    public void onViewCreated (View view, Bundle savedInstanceState){
+        Log.d("RES", "TEST DEVIEW CREATED");
+
     }
 
     public void displayDataFromDatabase(String idClub) {
@@ -151,20 +155,19 @@ public class ClubDetailFragment extends Fragment {
 
         String[] args = new String[]{idClub};
         Cursor cursor = db.rawQuery("SELECT * FROM players WHERE idClub=?", args);
-        ArrayList<Player> listOfPlayer = new ArrayList<Player>();
+        listPlayers = new ArrayList<Player>();
         if (cursor.moveToFirst()) {
             do {
                 Player p = new Player(cursor.getString(cursor.getColumnIndex("idClub")), cursor.getString(cursor.getColumnIndex("name")),
                         cursor.getString(cursor.getColumnIndex("position")), cursor.getString(cursor.getColumnIndex("number")),
                         cursor.getString(cursor.getColumnIndex("birth")));
-                listOfPlayer.add(p);
+                listPlayers.add(p);
+                Log.e("PLAYER", p.getName());
             } while (cursor.moveToNext());
         }
 
-        listPlayers=listOfPlayer;
-
         //Log.d("Player from database","IL y en a"+listOfPlayer.size());
-        Toast.makeText(getActivity().getApplicationContext(), listOfPlayer.size() + " joueurs récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity().getApplicationContext(), listPlayers.size() + " joueurs récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
         cursor.close();
 
         Cursor cursorFix = db.rawQuery("SELECT * FROM fixtures WHERE idClub=? order by date desc", args);
@@ -222,7 +225,7 @@ public class ClubDetailFragment extends Fragment {
 
 
 
-                    ArrayList<Player> listOfPlayer = new ArrayList<Player>();
+                    listPlayers = new ArrayList<Player>();
                     for(int i = 0; i < array.length(); i++){
                         ContentValues values = new ContentValues();
                         values.put(PlayersDB.PlayerEntry.COLUMN_NAME_CLUB_ID, idClub);
@@ -242,12 +245,25 @@ public class ClubDetailFragment extends Fragment {
                         Player p = new Player(idClub, array.getJSONObject(i).getString("name"),
                                 array.getJSONObject(i).getString("position"), array.getJSONObject(i).getString("jerseyNumber"),
                                 array.getJSONObject(i).getString("dateOfBirth"));
-                        listOfPlayer.add(p);
+                        listPlayers.add(p);
+                        Log.e("PLAYER2", p.getName());
 
                     }
-                    listPlayers=listOfPlayer;
+
+                    TextView marketvalue = ((TextView) getView().findViewById(R.id.marketvalue));
+                    TableLayout table = (TableLayout)getView().findViewById(R.id.tablelayout);
+                    for(int i=0; i< listPlayers.size(); i++){
+                        Log.e("RES", listPlayers.get(i).getName());
+                        TableRow row = (TableRow)LayoutInflater.from(getContext()).inflate(R.layout.tablerow, null);
+                        ((TextView)row.findViewById(R.id.playerdate)).setText(listPlayers.get(i).getBirth());
+                        ((TextView)row.findViewById(R.id.playername)).setText(listPlayers.get(i).getName()+" - "+listPlayers.get(i).getNumber());
+                        table.addView(row);
+                    }
+
+
+
                     // Log.d("Player from internet", "-> il y en a " + listOfPlayer.size());
-                    Toast.makeText(getActivity().getApplicationContext(), listOfPlayer.size()+" joueurs récupérées depuis l'API.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), listPlayers.size()+" joueurs récupérées depuis l'API.", Toast.LENGTH_SHORT).show();
 
 
                 } catch (JSONException e) {
@@ -367,6 +383,18 @@ public class ClubDetailFragment extends Fragment {
 
                     }
                     listFixtures=listOfFixture;
+
+                    TableLayout table = (TableLayout)getView().findViewById(R.id.tableLayoutfixture);
+                    for(int i=0; i< listFixtures.size(); i++){
+                        TableRow row = (TableRow)LayoutInflater.from(getContext()).inflate(R.layout.tablefixture, null);
+                        String homescore = (listFixtures.get(i).getGoalsHomeTeam().equals("null")?"":listFixtures.get(i).getGoalsHomeTeam());
+                        String awayscore = (listFixtures.get(i).getGoalsAwayTeam().equals("null")?"":listFixtures.get(i).getGoalsAwayTeam());
+
+
+                        ((TextView)row.findViewById(R.id.fixture)).setText(listFixtures.get(i).getHomeTeam()+" "+ homescore +"-"+awayscore+" "+listFixtures.get(i).getAwayTeam());
+                        ((TextView)row.findViewById(R.id.infos)).setText(listFixtures.get(i).getDate().toString());
+                        table.addView(row);
+                    }
                     //Log.d("Fixture form internet","-> il y en a "+listOfFixture.size());
                     Toast.makeText(getActivity().getApplicationContext(), listOfFixture.size()+" fixtures récupérées depuis l'API.", Toast.LENGTH_SHORT).show();
 

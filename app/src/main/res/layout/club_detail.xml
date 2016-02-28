@@ -32,4 +32,79 @@
         android:layout_toEndOf="@+id/defaultlogoview"
         android:singleLine="true"
         android:layout_marginTop="4dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/defaultlogoview">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:columnCount="2"
+            android:rowCount="5"
+            android:nestedScrollingEnabled="false"
+            android:columnOrderPreserved="true"
+            android:id="@+id/gridlayout">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Valeur du club"
+                android:id="@+id/marketvaluelab"
+                android:layout_column="0"
+                android:textSize="20dp"
+                android:layout_row="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/marketvalue"
+                android:layout_column="1"
+                android:layout_row="0"
+                android:layout_gravity="right"
+                android:textAlignment="gravity" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Effectif"
+                android:id="@+id/effectiflab"
+                android:layout_column="0"
+                android:textSize="20dp"
+                android:layout_row="1" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_row="2"
+                android:layout_column="0"
+                android:id="@+id/tablelayout"
+                android:layout_columnSpan="2"></TableLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView2"
+                android:layout_column="0"
+                android:textSize="20dp"
+                android:layout_row="3"
+                android:text="Matchs de la saison" />
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_row="4"
+                android:layout_column="0"
+                android:id="@+id/tableLayoutfixture"
+                android:layout_columnSpan="2" />
+
+
+        </GridLayout>
+    </ScrollView>
+
 </RelativeLayout>

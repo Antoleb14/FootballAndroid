@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+<GridLayout
+    android:layout_width="match_parent"
+    android:columnCount="2"
+    android:rowCount="1"
+    android:columnOrderPreserved="true">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="11/07/1991"
+        android:paddingRight="10dp"
+        android:id="@+id/playerdate" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Zlatan Ibrahimovic - 10"
+        android:textAlignment="gravity"
+        android:id="@+id/playername"
+        android:layout_gravity="right"
+        android:paddingRight="10dp"/>
+</GridLayout>
+</TableRow>

@@ -8,6 +8,7 @@ public class ClubClass {
     private String idLeague;
     private String name;
     private String iconLink;
+    private String marketvalue;
 
     public ClubClass(String idClub, String idLeague, String name, String iconLink, String marketValue) {
         this.idClub = idClub;
