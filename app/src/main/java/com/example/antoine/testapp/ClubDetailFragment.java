@@ -144,7 +144,9 @@ public class ClubDetailFragment extends Fragment {
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState){
         Log.d("RES", "TEST DEVIEW CREATED");
-
+        if(!ServiceNetwork.isInternetAvailable(getActivity().getApplicationContext())){
+            displayData();
+        }
     }
 
     public void displayDataFromDatabase(String idClub) {
@@ -171,7 +173,7 @@ public class ClubDetailFragment extends Fragment {
         cursor.close();
 
         Cursor cursorFix = db.rawQuery("SELECT * FROM fixtures WHERE idClub=? order by date desc", args);
-        ArrayList<Fixture> listOfFixture = new ArrayList<Fixture>();
+        listFixtures = new ArrayList<Fixture>();
         if (cursorFix.moveToFirst()) {
             do {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd",
@@ -190,14 +192,14 @@ public class ClubDetailFragment extends Fragment {
                 Fixture f = new Fixture(cursorFix.getString(cursorFix.getColumnIndex("idClub")), cursorFix.getString(cursorFix.getColumnIndex("homeTeam")),
                         cursorFix.getString(cursorFix.getColumnIndex("awayTeam")), cursorFix.getString(cursorFix.getColumnIndex("goalsHomeTeam")),
                         cursorFix.getString(cursorFix.getColumnIndex("goalsAwayTeam")), sqlDate);
-                listOfFixture.add(f);
+                listFixtures.add(f);
             } while (cursorFix.moveToNext());
             //Log.d("fixture test sans bdd", listOfFixture.get(0).getHomeTeam());
         }
-        Toast.makeText(getActivity().getApplicationContext(), listOfFixture.size()+" fixtures récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity().getApplicationContext(), listFixtures.size()+" fixtures récupérées depuis la base de données.", Toast.LENGTH_SHORT).show();
         //Log.d("Fixture form database","-> IL y en a "+listOfFixture.size());
         cursorFix.close();
-        listFixtures=listOfFixture;
+        //displayData();
     }
 
     /**
@@ -250,7 +252,7 @@ public class ClubDetailFragment extends Fragment {
 
                     }
 
-                    TextView marketvalue = ((TextView) getView().findViewById(R.id.marketvalue));
+                    /*TextView marketvalue = ((TextView) getView().findViewById(R.id.marketvalue));
                     TableLayout table = (TableLayout)getView().findViewById(R.id.tablelayout);
                     for(int i=0; i< listPlayers.size(); i++){
                         Log.e("RES", listPlayers.get(i).getName());
@@ -258,7 +260,8 @@ public class ClubDetailFragment extends Fragment {
                         ((TextView)row.findViewById(R.id.playerdate)).setText(listPlayers.get(i).getBirth());
                         ((TextView)row.findViewById(R.id.playername)).setText(listPlayers.get(i).getName()+" - "+listPlayers.get(i).getNumber());
                         table.addView(row);
-                    }
+                    }*/
+                   // displayPlayer();
 
 
 
@@ -298,6 +301,38 @@ public class ClubDetailFragment extends Fragment {
 
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(jsonObjReq);
+    }
+
+
+    private void displayData(){
+        displayPlayer();
+        displayFixture();
+    }
+
+    private void displayPlayer(){
+        TextView marketvalue = ((TextView) getView().findViewById(R.id.marketvalue));
+        TableLayout table = (TableLayout)getView().findViewById(R.id.tablelayout);
+        for(int i=0; i< listPlayers.size(); i++){
+            Log.e("RES", listPlayers.get(i).getName());
+            TableRow row = (TableRow)LayoutInflater.from(getContext()).inflate(R.layout.tablerow, null);
+            ((TextView)row.findViewById(R.id.playerdate)).setText(listPlayers.get(i).getBirth());
+            ((TextView)row.findViewById(R.id.playername)).setText(listPlayers.get(i).getName()+" - "+listPlayers.get(i).getNumber());
+            table.addView(row);
+        }
+    }
+
+    private void displayFixture(){
+        TableLayout table = (TableLayout)getView().findViewById(R.id.tableLayoutfixture);
+        for(int i=0; i< listFixtures.size(); i++){
+            TableRow row = (TableRow)LayoutInflater.from(getContext()).inflate(R.layout.tablefixture, null);
+            String homescore = (listFixtures.get(i).getGoalsHomeTeam().equals("null")?"":listFixtures.get(i).getGoalsHomeTeam());
+            String awayscore = (listFixtures.get(i).getGoalsAwayTeam().equals("null")?"":listFixtures.get(i).getGoalsAwayTeam());
+
+
+            ((TextView)row.findViewById(R.id.fixture)).setText(listFixtures.get(i).getHomeTeam()+" "+ homescore +"-"+awayscore+" "+listFixtures.get(i).getAwayTeam());
+            ((TextView)row.findViewById(R.id.infos)).setText(listFixtures.get(i).getDate().toString());
+            table.addView(row);
+        }
     }
 
     /**
@@ -384,7 +419,7 @@ public class ClubDetailFragment extends Fragment {
                     }
                     listFixtures=listOfFixture;
 
-                    TableLayout table = (TableLayout)getView().findViewById(R.id.tableLayoutfixture);
+                    /*TableLayout table = (TableLayout)getView().findViewById(R.id.tableLayoutfixture);
                     for(int i=0; i< listFixtures.size(); i++){
                         TableRow row = (TableRow)LayoutInflater.from(getContext()).inflate(R.layout.tablefixture, null);
                         String homescore = (listFixtures.get(i).getGoalsHomeTeam().equals("null")?"":listFixtures.get(i).getGoalsHomeTeam());
@@ -394,9 +429,10 @@ public class ClubDetailFragment extends Fragment {
                         ((TextView)row.findViewById(R.id.fixture)).setText(listFixtures.get(i).getHomeTeam()+" "+ homescore +"-"+awayscore+" "+listFixtures.get(i).getAwayTeam());
                         ((TextView)row.findViewById(R.id.infos)).setText(listFixtures.get(i).getDate().toString());
                         table.addView(row);
-                    }
+                    }*/
                     //Log.d("Fixture form internet","-> il y en a "+listOfFixture.size());
                     Toast.makeText(getActivity().getApplicationContext(), listOfFixture.size()+" fixtures récupérées depuis l'API.", Toast.LENGTH_SHORT).show();
+                    displayData();
 
                     // Log.d("fixture test avec bdd", listOfFixture.get(0).getHomeTeam());
 
